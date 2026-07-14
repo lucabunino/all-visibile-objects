@@ -2,7 +2,7 @@
 	import { tick } from 'svelte'
 	import { page } from '$app/state'
 	import { getTemplate } from '$lib/utils/template'
-	import { revealWidth } from '$lib/utils/transitions.js'
+	import { revealWidth, fadeBlur } from '$lib/utils/transitions.js'
 
 	let { nav = [], about } = $props()
 
@@ -235,7 +235,7 @@
 				<li class="menu-item about"><a class="tag" href="/about">About</a></li>
 				{#if about.instagram?.href && getTemplate(page.route.id) !== 'work'}
 					<li class="menu-item instagram">
-						<a class="tag" href={about.instagram.href} target="_blank" rel="noopener noreferrer">{about.instagram.handle}</a>
+						<a class="tag" href={about.instagram.href} target="_blank" rel="noopener noreferrer" transition:fadeBlur>{about.instagram.handle}</a>
 					</li>
 				{/if}
 			</ul>

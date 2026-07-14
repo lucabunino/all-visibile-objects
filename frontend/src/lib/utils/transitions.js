@@ -50,6 +50,20 @@ export function revealWidth(node, { duration = 300, delay = 0, easing = transiti
 
 /**
  * @param {HTMLElement} node
+ * @param {{duration?: number, delay?: number, blur?: number, easing?: (t: number) => number}} [params]
+ */
+export function fadeBlur(node, { duration = 500, delay = 0, blur = 100, easing = transitionEasing } = {}) {
+	return {
+		duration,
+		delay,
+		easing,
+		/** @param {number} t */
+		css: (t) => `opacity: ${t}; filter: blur(${(1 - t) * blur}px);`
+	}
+}
+
+/**
+ * @param {HTMLElement} node
  * @param {{duration?: number, blur?: number, easing?: (t: number) => number, fixed?: boolean}} [params]
  */
 export function pageIn(node, { duration = 500, blur = 100, easing = transitionEasing, fixed = false } = {}) {
