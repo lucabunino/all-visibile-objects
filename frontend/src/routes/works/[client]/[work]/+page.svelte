@@ -4,21 +4,23 @@
 	import Media from '$lib/components/Media.svelte'
 	import Gallery from '$lib/components/Gallery.svelte'
 	import CursorTag from '$lib/components/CursorTag.svelte'
-	import { browser } from '$app/environment'
 	import { pageIn, pageOut } from '$lib/utils/transitions.js'
+	import { getGallery } from '$lib/stores/gallery.svelte.js'
+	import { page } from '$app/state'
 
 	let { data } = $props()
 	const work = $derived(data.work)
 
-	let galleryOpen = $state(false)
+	const gallery = getGallery()
+
+	// gallery.open tracks the pushed history entry both ways: Back pops it
+	// (closes), Forward restores it (reopens) — see gallery.svelte.js
+	$effect(() => {
+		gallery.setOpen(!!page.state.gallery)
+	})
+
 	let hovered = $state(null)
 
-	/** @param {MouseEvent} e */
-	function scrollToDetails(e) {
-		if (!browser) return
-		e.preventDefault()
-		document.getElementById('details')?.scrollIntoView({ behavior: 'smooth' })
-	}
 	const galleryMedia = $derived(
 		/** @type {any[]} */ (work.blocks ?? [])
 			.flatMap((/** @type {any} */ block) => block.items ?? [])
@@ -26,26 +28,13 @@
 	)
 </script>
 
-{#if galleryOpen && galleryMedia.length}
+{#if gallery.open && galleryMedia.length}
 	<div class="gallery-wrapper" in:pageIn={{ fixed: true }} out:pageOut={{ fixed: true }}>
-		<Gallery media={galleryMedia} bind:galleryOpen={galleryOpen}/>
+		<Gallery media={galleryMedia} />
 	</div>
 {/if}
 
 <article>
-	<header>
-		{#if work.client}<h2 class="tag no-pointer">{work.client.title}</h2>{/if}
-		{#if work.title}<h1 class="tag no-pointer">{work.title}</h1>{/if}
-		<a href="#details" class="tag black" onclick={scrollToDetails}>Details +</a>
-		{#if galleryMedia.length}
-			<button class="tag play" type="button" onclick={() => (galleryOpen = true)}>Play
-				<svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M9.75 5.19615L4.64275e-07 10.3923L9.18537e-07 -9.03023e-07L9.75 5.19615Z"/>
-				</svg>
-			</button>
-		{/if}
-	</header>
-
 	{#if work.blocks}
 		<section id="blocks">
 			{#each work.blocks || [] as block (block._key)}
@@ -148,29 +137,7 @@
 	.gallery-wrapper {
 		position: fixed;
 		inset: 0;
-		z-index: 100;
-	}
-	header {
-		display: flex;
-		column-gap: var(--sp-5);
-		position: fixed;
-		// left: calc((100% - var(--sp-15)*2 - var(--sp-15)*11)/12*4 + var(--sp-15)*5);
-		right: var(--sp-15);
-		top: var(--sp-15);
-		z-index: 11;
-
-		.play {
-			display: flex;
-			column-gap: var(--sp-7);
-			// position: fixed;
-			// top: var(--sp-15);
-			// right: var(--sp-15);
-			z-index: 11;
-
-			svg {
-				fill: var(--white);
-			}
-		}
+		z-index: 5;
 	}
 	#blocks {
 
@@ -248,6 +215,7 @@
 
 			.work {
 				a {
+					width: 100%;
 					padding-bottom: var(--sp-2);
 					
 					.title {

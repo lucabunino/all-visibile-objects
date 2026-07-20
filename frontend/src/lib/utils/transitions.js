@@ -38,13 +38,14 @@ export function revealWidth(node, { duration = 300, delay = 0, easing = transiti
 	const style = getComputedStyle(node)
 	const paddingLeft = parseFloat(style.paddingLeft) || 0
 	const paddingRight = parseFloat(style.paddingRight) || 0
+	const marginLeft = parseFloat(style.marginLeft) || 0
 	return {
 		duration,
 		delay,
 		easing,
 		/** @param {number} t */
 		css: (t) =>
-			`width: ${t * width}px; padding-left: ${t * paddingLeft}px; padding-right: ${t * paddingRight}px; overflow: hidden;`
+			`width: ${t * width}px; margin-left: ${t * marginLeft}px; padding-left: ${t * paddingLeft}px; padding-right: ${t * paddingRight}px; overflow: hidden;`
 	}
 }
 

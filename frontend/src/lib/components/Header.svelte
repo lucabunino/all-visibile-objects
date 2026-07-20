@@ -1,17 +1,24 @@
 <script>
 	import { tick } from 'svelte'
 	import { page } from '$app/state'
+	import { afterNavigate } from '$app/navigation'
 	import { getTemplate } from '$lib/utils/template'
-	import { revealWidth, fadeBlur } from '$lib/utils/transitions.js'
+	import { revealWidth } from '$lib/utils/transitions.js'
+	import { getNavMode } from '$lib/stores/navMode.svelte.js'
+	import { getGallery } from '$lib/stores/gallery.svelte.js'
 
 	let { nav = [], about } = $props()
 
-	const DURATION = 400
+	const navMode = getNavMode()
+	const gallery = getGallery()
+
+	const showNav = $derived(getTemplate(page.route.id) !== 'work')
+
+	afterNavigate(() => closeAll())
+
+	const DURATION = 200
 	const STEP = 50
 	const OPEN_DELAY = 150
-
-	/** @type {'mouseover' | 'click'} */
-	let navMode = $state('mouseover')
 
 	let worksOpen = $state(false)
 	/** @type {string | null | undefined} */
@@ -32,7 +39,7 @@
 	/** @param {KeyboardEvent} e */
 	function handleKeydown(e) {
 		if (e.shiftKey && e.key.toLowerCase() === 'n') {
-			navMode = navMode === 'mouseover' ? 'click' : 'mouseover'
+			navMode.toggle()
 			closeAll()
 		}
 	}
@@ -90,7 +97,7 @@
 
 	/** @param {MouseEvent} e */
 	function handleWindowClick(e) {
-		if (navMode !== 'click' || !worksOpen) return
+		if (navMode.mode !== 'click' || !worksOpen) return
 		if (e.target instanceof Node && !navEl?.contains(e.target)) closeAll()
 	}
 
@@ -175,8 +182,8 @@
 		<div id="clients">
 			<ul role="menu" aria-label="Clients" class="clients overflow-y">
 				{#each nav as client, i (client.slug?.current)}
-					<li role="none" class="client">
-						<button class="tag" class:no-pointer={navMode === 'mouseover'} type="button" role="menuitem"
+					<li role="none" class="client tag-wrapper">
+						<button class="tag" class:no-pointer={navMode.mode === 'mouseover'} type="button" role="menuitem"
 						bind:this={clientRefs[i]}
 						data-slug={client.slug?.current}
 						in:revealWidth|global={{ duration: DURATION, delay: i * STEP }}
@@ -184,7 +191,7 @@
 						class:active={activeClientSlug === client.slug?.current}
 						class:inactive={activeClient && activeClientSlug !== client.slug?.current}
 						aria-expanded={activeClientSlug === client.slug?.current}
-						onmouseenter={() => navMode === 'mouseover' && (activeClientSlug = client.slug?.current)}
+						onmouseenter={() => navMode.mode === 'mouseover' && (activeClientSlug = client.slug?.current)}
 						onclick={() => (activeClientSlug = client.slug?.current)}
 						onfocus={() => (activeClientSlug = client.slug?.current)}
 						onkeydown={(e) => handleClientKeydown(e, i, client.slug?.current)}
@@ -200,7 +207,7 @@
 			{#if activeClient}
 				<ul class="works overflow-y" aria-label="Works for {activeClient.title}">
 					{#each activeClient.works as work, i (work.slug?.current)}
-						<li class="work">
+						<li class="work tag-wrapper">
 							<a class="tag" href="/works/{activeClient.slug?.current}/{work.slug?.current}"
 							bind:this={workRefs[i]}
 							onkeydown={(e) => handleWorkKeydown(e, i)}
@@ -218,24 +225,36 @@
 
 <header>
 	<div style:display="contents" role="menubar" tabindex="-1" bind:this={headerEl} onkeydown={handleTopLevelKeydown}>
-		<a id="logo" class="tag" href="/">All Visible Object</a>
+		{#if !gallery.open}
+			<a id="logo" class="tag" href="/"
+			in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>All Visible Object</a>
+		{/if}
 		<nav aria-label="Main" id="menu" style:--clientsCount={nav.length}>
 			<ul class="menu" bind:this={navEl}>
-				{#if navMode === 'mouseover'}
-					<li id="works" class="menu-item" onmouseenter={openWorksHover} onmouseleave={closeWorksHover} onfocusin={openWorksHover} onfocusout={handleWorksFocusOut}>
+				{#if navMode.mode === 'mouseover' && showNav}
+					<li id="works" class="menu-item tag-wrapper" onmouseenter={openWorksHover} onmouseleave={closeWorksHover} onfocusin={openWorksHover} onfocusout={handleWorksFocusOut}
+					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
 						<button class="tag no-pointer" class:active={worksOpen} type="button" bind:this={worksButtonEl} onkeydown={handleWorksKeydown} aria-haspopup="true" aria-expanded={worksOpen} aria-controls="clients">Works</button>
 						{@render worksDropdown()}
 					</li>
-				{:else}
-					<li id="works" class="menu-item">
+				{:else if showNav}
+					<li id="works" class="menu-item tag-wrapper"
+					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
 						<button class="tag" class:active={worksOpen} type="button" bind:this={worksButtonEl} onmousedown={captureWorksOpenState} onclick={toggleWorksClick} onfocus={focusWorksButton} onkeydown={handleWorksKeydown} aria-haspopup="true" aria-expanded={worksOpen} aria-controls="clients">Works</button>
 						{@render worksDropdown()}
 					</li>
 				{/if}
-				<li class="menu-item about"><a class="tag" href="/about">About</a></li>
-				{#if about.instagram?.href && getTemplate(page.route.id) !== 'work'}
-					<li class="menu-item instagram">
-						<a class="tag" href={about.instagram.href} target="_blank" rel="noopener noreferrer" transition:fadeBlur>{about.instagram.handle}</a>
+				{#if showNav}
+					<li class="menu-item about tag-wrapper"
+					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
+						<a class="tag" href="/about">About</a>
+					</li>
+				{/if}
+				{#if about.instagram?.href && showNav}
+					<li class="menu-item instagram tag-wrapper"
+					in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
+					out:revealWidth|global={{ duration: DURATION }}>
+						<a class="tag" href={about.instagram.href} target="_blank" rel="noopener noreferrer">{about.instagram.handle}</a>
 					</li>
 				{/if}
 			</ul>
@@ -252,7 +271,6 @@ header {
 	align-items: start;
 	grid-template-columns: repeat(12, 1fr);
 	gap: var(--sp-15);
-	--worksWidth: 20rem;
 	pointer-events: none;
 
 	.tag,
@@ -261,7 +279,10 @@ header {
 	}
 
 	#logo {
-		grid-column: 1 / span 2;
+		position: fixed;
+		top: var(--sp-15);
+		left: var(--sp-15);
+		z-index: 101;
 		width: fit-content;
 	}
 
@@ -270,7 +291,10 @@ header {
 
 		.menu {
 			display: flex;
-			gap: var(--sp-5);
+
+			> *:not(:first-child) {
+				margin-left: var(--sp-5);
+			}
 
 			#works {
 				button {
@@ -321,7 +345,11 @@ header {
 			}
 
 			.instagram {
-				margin-left: auto;
+				position: fixed;
+				top: var(--sp-15);
+				right: var(--sp-15);
+				z-index: 101;
+				margin-left: 0;
 			}
 		}
 	}

@@ -31,6 +31,8 @@ footer {
 	flex-direction: column;
 	padding: var(--sp-15);
 	margin-top: auto;
+	color: var(--black);
+	background-color: var(--white);
 
 	.talk {
 		flex-basis: 100%;

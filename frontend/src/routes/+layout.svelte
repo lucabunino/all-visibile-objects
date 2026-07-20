@@ -5,6 +5,7 @@
 
 	import Head from '$lib/components/Head.svelte'
 	import Header from '$lib/components/Header.svelte'
+	import HeaderWork from '$lib/components/HeaderWork.svelte'
 	import Footer from '$lib/components/Footer.svelte'
 	import { pageIn, pageOut } from '$lib/utils/transitions.js'
 	import { getTemplate } from '$lib/utils/template.js'
@@ -15,9 +16,10 @@
 
 <Head />
 <Header nav={data.nav} about={data.about}/>
+<HeaderWork nav={data.nav} />
 
 {#key page.url.pathname}
-	<div class="page" in:pageIn out:pageOut>
+	<div class="page" data-template={getTemplate(page.route.id)} in:pageIn out:pageOut>
 		<main data-template={getTemplate(page.route.id)}>
 			{@render children()}
 		</main>
@@ -25,11 +27,19 @@
 	</div>
 {/key}
 
-<style>
+<style lang="scss">
 	.page {
 		display: flex;
 		flex-direction: column;
 		min-height: 100vh;
 		width: 100%;
+		background-color: var(--white);
+		color: var(--black);
+
+
+		&[data-template='about'] {
+			background-color: var(--black);
+			color: var(--white);
+		}
 	}
 </style>

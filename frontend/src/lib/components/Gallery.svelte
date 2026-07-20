@@ -2,9 +2,15 @@
 	import Media from '$lib/components/Media.svelte'
 	import CursorTag from '$lib/components/CursorTag.svelte'
 	import { useScrollLock } from '$lib/utils/scrollLock.svelte.js'
+	import { revealWidth } from '$lib/utils/transitions.js'
+	import { getGallery } from '$lib/stores/gallery.svelte.js'
 
-	/** @type {{media: any[], galleryOpen?: boolean}} */
-	let { media = [], galleryOpen = $bindable() } = $props()
+	const DURATION = 200
+
+	/** @type {{media: any[]}} */
+	let { media = [] } = $props()
+
+	const gallery = getGallery()
 
 	let index = $state(0)
 	/** @type {'left' | 'right' | null} */
@@ -12,7 +18,7 @@
 
 	useScrollLock(() => true)
 
-	function close() { galleryOpen = false }
+	function close() { gallery.closeGallery() }
 	function prev() { index = (index - 1 + media.length) % media.length }
 	function next() { index = (index + 1) % media.length }
 
@@ -27,8 +33,9 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="overlay" role="dialog" aria-modal="true" aria-label="Media gallery">
-	<button class="close tag" type="button" onclick={close} aria-label="Close gallery">Close</button>
-	<span class="tag no-pointer index">{index + 1}/{media.length}</span>
+	<div class="tag-wrapper index" in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
+		<span class="tag no-pointer">{index + 1}/{media.length}</span>
+	</div>
 
 	<button
 		class="zone prev"
@@ -62,18 +69,11 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		z-index: 100;
+		z-index: 5;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		background-color: var(--white);
-
-		.close {
-			position: absolute;
-			top: var(--sp-15);
-			right: var(--sp-15);
-			z-index: 2;
-		}
 
 		.index {
 			position: absolute;

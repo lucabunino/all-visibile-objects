@@ -7,6 +7,7 @@
 	--focusColor: #2568dc;
 
 	--tagHeight: calc(1cap + var(--sp-8)*2);
+	--worksWidth: 20rem;
 	--headerHeight: 4rem;
 	--footerHeight: 4rem;
 	--transition: cubic-bezier(.77, 0, .175, 1) .3s;
@@ -52,8 +53,12 @@ body {
 	white-space: nowrap;
 	border: 0;
 }
-
 // Specific
+.tag-wrapper {
+	flex-shrink: 0;
+	min-width: 0;
+	height: var(--tagHeight);
+}
 .tag,
 .tag:any-link {
 	display: inline-block;
@@ -68,8 +73,9 @@ body {
 	user-select: none;	
 	transform: translateZ(0);
 	backface-visibility: hidden;
-
 	cursor: pointer;
+	white-space: pre;
+
 	&.no-pointer {
 		cursor: default;
 	}
