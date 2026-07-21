@@ -140,6 +140,7 @@
 		z-index: 5;
 	}
 	#blocks {
+		background-color: var(--white);
 
 		.blocks {
 			display: flex;

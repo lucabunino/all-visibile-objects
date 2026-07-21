@@ -42,9 +42,6 @@ export default {
 			],
 		},
 		wysiwyg('description', 'Content'),
-		wysiwyg('approach', 'Content'),
-		wysiwyg('philosophy', 'Content'),
-		wysiwyg('methodology', 'Content'),
 		{
 			name: 'capabilities',
 			type: 'array',
@@ -53,17 +50,17 @@ export default {
 			validation: Rule => Rule.unique(),
 		},
 		{
+			name: 'commissions',
+			type: 'array',
+			of: [link('commission')],
+			group: 'Content',
+		},
+		{
 			name: 'clients',
 			type: 'array',
 			of: [{type: 'reference', to: [{type: 'client'}]}],
 			group: 'Content',
 			validation: Rule => Rule.unique(),
-		},
-		{
-			name: 'commissions',
-			type: 'array',
-			of: [link('commission')],
-			group: 'Content',
 		},
 		{
 			name: 'images',

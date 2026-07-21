@@ -14,7 +14,6 @@
   descent-override: 29.30%;
   line-gap-override: 0%;
 }
-
 .su {
 	&,
 	&-s {
@@ -43,7 +42,7 @@
 .uppercase		{
 	text-transform: uppercase;
 	font-size: .95em;
-	line-height:  calc(1.1538rem*1.2);
+	line-height: calc(1.1538rem*1.2);
 	-moz-font-feature-settings: "lnum";
 	-webkit-font-feature-settings: "lnum";
 	font-feature-settings: "lnum";

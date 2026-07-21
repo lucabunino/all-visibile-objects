@@ -23,7 +23,9 @@
 		<main data-template={getTemplate(page.route.id)}>
 			{@render children()}
 		</main>
-		<Footer about={data.about} policies={data.policies} />
+		{#if page.route.id !== '/about'}
+			<Footer about={data.about} policies={data.policies} />
+		{/if}
 	</div>
 {/key}
 
@@ -33,13 +35,5 @@
 		flex-direction: column;
 		min-height: 100vh;
 		width: 100%;
-		background-color: var(--white);
-		color: var(--black);
-
-
-		&[data-template='about'] {
-			background-color: var(--black);
-			color: var(--white);
-		}
 	}
 </style>
