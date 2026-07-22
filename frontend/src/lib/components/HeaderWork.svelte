@@ -9,7 +9,7 @@
 
 	let { nav = [] } = $props()
 
-	const DURATION = 200
+	const DURATION = 300
 	const STEP = 50
 	const OPEN_DELAY = 150
 
@@ -194,17 +194,17 @@
 			{/if}
 			{#key page.params.work}
 				{#if work.title && !gallery.open}
-					<div class="tag-wrapper title" in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
+					<div class="tag-wrapper title" in:revealWidth|global={{ duration: DURATION, delay: DURATION+STEP*1 }} out:revealWidth|global={{ duration: DURATION }}>
 						<h1 class="tag no-pointer">{work.title}</h1>
 					</div>
 				{/if}
 			{/key}
 			{#if !gallery.open}
-				<div class="tag-wrapper details" in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
+				<div class="tag-wrapper details" in:revealWidth|global={{ duration: DURATION, delay: DURATION+STEP*2 }} out:revealWidth|global={{ duration: DURATION }}>
 					<a href="#details" class="tag black" onclick={scrollToDetails}>Details +</a>
 				</div>
 			{/if}
-			{#if galleryMedia.length && !gallery.open}
+			<!-- {#if galleryMedia.length && !gallery.open}
 				<div class="tag-wrapper" in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
 					<button class="tag play" type="button" onclick={() => gallery.openGallery()}>Play
 						<svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -212,7 +212,7 @@
 						</svg>
 					</button>
 				</div>
-			{/if}
+			{/if} -->
 			<div class="tag-wrapper close" in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
 				<a class="tag" href="/" onclick={handleCloseClick} aria-label={gallery.open ? 'Close gallery' : 'Close'}>Close</a>
 			</div>

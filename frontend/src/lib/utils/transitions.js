@@ -26,8 +26,8 @@ function cubicBezier(mX1, mY1, mX2, mY2) {
 	return (x) => calcBezier(getTForX(x), mY1, mY2)
 }
 
-// matches --transition: cubic-bezier(.77, 0, .175, 1) .3s in main.scss
-const transitionEasing = cubicBezier(0.77, 0, 0.175, 1)
+// matches --transition: cubic-bezier(0.42, 0, 0.58, 1) in main.scss
+const transitionEasing = cubicBezier(0.42, 0, 0.58, 1)
 
 /**
  * @param {HTMLElement} node
@@ -65,12 +65,13 @@ export function fadeBlur(node, { duration = 500, delay = 0, blur = 100, easing =
 
 /**
  * @param {HTMLElement} node
- * @param {{duration?: number, blur?: number, easing?: (t: number) => number, fixed?: boolean}} [params]
+ * @param {{duration?: number, delay?: number, blur?: number, easing?: (t: number) => number, fixed?: boolean}} [params]
  */
-export function pageIn(node, { duration = 500, blur = 100, easing = transitionEasing, fixed = false } = {}) {
+export function pageIn(node, { duration = 500, delay = 0, blur = 100, easing = transitionEasing, fixed = false } = {}) {
 	const position = fixed ? 'position: fixed; inset: 0;' : 'position: absolute; inset: 0;'
 	return {
 		duration,
+		delay,
 		easing,
 		/** @param {number} t */
 		css: (t) => `${position} opacity: ${t}; filter: blur(${(1 - t) * blur}px);`
@@ -79,19 +80,16 @@ export function pageIn(node, { duration = 500, blur = 100, easing = transitionEa
 
 /**
  * @param {HTMLElement} node
- * @param {{duration?: number, blur?: number, easing?: (t: number) => number, fixed?: boolean}} [params]
+ * @param {{duration?: number, delay?: number, blur?: number, easing?: (t: number) => number, fixed?: boolean}} [params]
  */
-export function pageOut(node, { duration = 500, blur = 100, easing = transitionEasing, fixed = false } = {}) {
-	// Freeze the outgoing page at its current scroll position: SvelteKit resets
-	// the document scroll to top on navigation, and without this the outgoing
-	// page would visibly jump while fading out. Viewport-fixed elements
-	// (fixed: true) skip the scroll compensation and pin to the viewport.
+export function pageOut(node, { duration = 500, delay = 0, blur = 100, easing = transitionEasing, fixed = false } = {}) {
 	const scrollY = browser && !fixed ? window.scrollY : 0
 	const position = fixed
 		? 'position: fixed; inset: 0;'
 		: `position: fixed; top: ${-scrollY}px; left: 0; right: 0;`
 	return {
 		duration,
+		delay,
 		easing,
 		/** @param {number} t */
 		css: (t) => `${position} opacity: ${t}; filter: blur(${(1 - t) * blur}px);`

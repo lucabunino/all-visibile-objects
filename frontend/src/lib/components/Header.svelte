@@ -1,22 +1,55 @@
 <script>
 	import { tick } from 'svelte'
+	import { scrollY } from 'svelte/reactivity/window'
 	import { page } from '$app/state'
 	import { afterNavigate } from '$app/navigation'
 	import { getTemplate } from '$lib/utils/template'
 	import { revealWidth } from '$lib/utils/transitions.js'
 	import { getNavMode } from '$lib/stores/navMode.svelte.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
+	import { getTagRadius } from '$lib/stores/tagRadius.svelte.js'
 
 	let { nav = [], about } = $props()
 
 	const navMode = getNavMode()
 	const gallery = getGallery()
+	const tagRadius = getTagRadius()
+
+	$effect(() => {
+		document.documentElement.style.setProperty('--tagRadius', tagRadius.rounded ? '3px' : '0px')
+	})
 
 	const showNav = $derived(getTemplate(page.route.id) !== 'work')
 
+	// header hides while actively scrolling down, reappears only while
+	// actively scrolling up (idle/tiny jitter changes nothing, avoiding
+	// interrupted/restarted out-transitions) — always visible at the very
+	// top of the page, and disabled entirely on work pages (isWork =
+	// !showNav), where HeaderWork's own row takes over
+	const SCROLL_THRESHOLD = 50 // ignore direction this close to the top
+	const SCROLL_DELTA = 10 // minimum movement before a direction change registers
+	let lastScrollY = $state(0)
+	let headerVisible = $state(true)
+	$effect(() => {
+		const y = scrollY.current ?? 0
+		if (!showNav || y <= 0) {
+			headerVisible = true
+			lastScrollY = y
+			return
+		}
+		const delta = y - lastScrollY
+		if (delta > SCROLL_DELTA && y > SCROLL_THRESHOLD) {
+			headerVisible = false
+			lastScrollY = y
+		} else if (delta < -SCROLL_DELTA) {
+			headerVisible = true
+			lastScrollY = y
+		}
+	})
+
 	afterNavigate(() => closeAll())
 
-	const DURATION = 200
+	const DURATION = 300
 	const STEP = 50
 	const OPEN_DELAY = 150
 
@@ -41,6 +74,8 @@
 		if (e.shiftKey && e.key.toLowerCase() === 'n') {
 			navMode.toggle()
 			closeAll()
+		} else if (e.shiftKey && e.key.toLowerCase() === 'r') {
+			tagRadius.toggle()
 		}
 	}
 
@@ -223,44 +258,50 @@
 	{/if}
 {/snippet}
 
-<header>
-	<div style:display="contents" role="menubar" tabindex="-1" bind:this={headerEl} onkeydown={handleTopLevelKeydown}>
-		{#if !gallery.open}
-			<a id="logo" class="tag" href="/"
-			in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>All Visible Object</a>
-		{/if}
-		<nav aria-label="Main" id="menu" style:--clientsCount={nav.length}>
-			<ul class="menu" bind:this={navEl}>
-				{#if navMode.mode === 'mouseover' && showNav}
-					<li id="works" class="menu-item tag-wrapper" onmouseenter={openWorksHover} onmouseleave={closeWorksHover} onfocusin={openWorksHover} onfocusout={handleWorksFocusOut}
-					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
-						<button class="tag no-pointer" class:active={worksOpen} type="button" bind:this={worksButtonEl} onkeydown={handleWorksKeydown} aria-haspopup="true" aria-expanded={worksOpen} aria-controls="clients">Works</button>
-						{@render worksDropdown()}
-					</li>
-				{:else if showNav}
-					<li id="works" class="menu-item tag-wrapper"
-					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
-						<button class="tag" class:active={worksOpen} type="button" bind:this={worksButtonEl} onmousedown={captureWorksOpenState} onclick={toggleWorksClick} onfocus={focusWorksButton} onkeydown={handleWorksKeydown} aria-haspopup="true" aria-expanded={worksOpen} aria-controls="clients">Works</button>
-						{@render worksDropdown()}
-					</li>
-				{/if}
-				{#if showNav}
-					<li class="menu-item about tag-wrapper"
-					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
-						<a class="tag" href="/about">About</a>
-					</li>
-				{/if}
-				{#if about.instagram?.href && showNav}
-					<li class="menu-item instagram tag-wrapper"
-					in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
-					out:revealWidth|global={{ duration: DURATION }}>
-						<a class="tag" href={about.instagram.href} target="_blank" rel="noopener noreferrer">{about.instagram.handle}</a>
-					</li>
-				{/if}
-			</ul>
-		</nav>
-	</div>
-</header>
+{#if headerVisible}
+	<header>
+		<div style:display="contents" role="menubar" tabindex="-1" bind:this={headerEl} onkeydown={handleTopLevelKeydown}>
+			{#if !gallery.open}
+				<a id="logo" class="tag" href="/"
+				in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
+				out:revealWidth|global={{ duration: DURATION }}>All Visible Object</a>
+			{/if}
+			<nav aria-label="Main" id="menu" style:--clientsCount={nav.length}>
+				<ul class="menu" bind:this={navEl}>
+					{#if navMode.mode === 'mouseover' && showNav}
+						<li id="works" class="menu-item tag-wrapper" onmouseenter={openWorksHover} onmouseleave={closeWorksHover} onfocusin={openWorksHover} onfocusout={handleWorksFocusOut}
+						in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
+						out:revealWidth|global={{ duration: DURATION }}>
+							<button class="tag no-pointer" class:active={worksOpen} type="button" bind:this={worksButtonEl} onkeydown={handleWorksKeydown} aria-haspopup="true" aria-expanded={worksOpen} aria-controls="clients">Works</button>
+							{@render worksDropdown()}
+						</li>
+					{:else if showNav}
+						<li id="works" class="menu-item tag-wrapper"
+						in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
+						out:revealWidth|global={{ duration: DURATION }}>
+							<button class="tag" class:active={worksOpen} type="button" bind:this={worksButtonEl} onmousedown={captureWorksOpenState} onclick={toggleWorksClick} onfocus={focusWorksButton} onkeydown={handleWorksKeydown} aria-haspopup="true" aria-expanded={worksOpen} aria-controls="clients">Works</button>
+							{@render worksDropdown()}
+						</li>
+					{/if}
+					{#if showNav}
+						<li class="menu-item about tag-wrapper"
+						in:revealWidth|global={{ duration: DURATION, delay: DURATION+STEP*1 }}
+						out:revealWidth|global={{ duration: DURATION }}>
+							<a class="tag" href="/about">About</a>
+						</li>
+					{/if}
+					{#if about.instagram?.href && showNav}
+						<li class="menu-item instagram tag-wrapper"
+						in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
+						out:revealWidth|global={{ duration: DURATION }}>
+							<a class="tag" href={about.instagram.href} target="_blank" rel="noopener noreferrer">{about.instagram.handle}</a>
+						</li>
+					{/if}
+				</ul>
+			</nav>
+		</div>
+	</header>
+{/if}
 
 <style lang="scss">
 header {

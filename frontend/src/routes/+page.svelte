@@ -44,14 +44,18 @@
 		a {
 			display: block;
 			&:focus-visible {
-				border: outset;
+				:global(.content) {
+					transform: scale(1.02);
+				}
 			}
 
 			.tags {
 				position: absolute;
 				inset: var(--sp-15);
 				pointer-events: none;
-				// margin-top: calc(50% - var(--tagHeight)/2);
+				// margin-top: 50%;
+				// transform: translateY(-50%);
+				// height: fit-content;
 
 				.tag {
 					position: sticky;

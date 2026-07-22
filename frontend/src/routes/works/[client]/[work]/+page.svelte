@@ -9,40 +9,46 @@
 	import { page } from '$app/state'
 
 	let { data } = $props()
-	const work = $derived(data.work)
-
+	let hovered = $state(null)
+	let hoveredBlock = $state(false)
 	const gallery = getGallery()
+	const DURATION = 300
 
-	// gallery.open tracks the pushed history entry both ways: Back pops it
-	// (closes), Forward restores it (reopens) — see gallery.svelte.js
 	$effect(() => {
 		gallery.setOpen(!!page.state.gallery)
 	})
 
-	let hovered = $state(null)
-
 	const galleryMedia = $derived(
-		/** @type {any[]} */ (work.blocks ?? [])
+		/** @type {any[]} */ (data.work.blocks ?? [])
 			.flatMap((/** @type {any} */ block) => block.items ?? [])
 			.filter((/** @type {any} */ item) => item._type === 'mediaItem')
 	)
 </script>
 
 {#if gallery.open && galleryMedia.length}
-	<div class="gallery-wrapper" in:pageIn={{ fixed: true }} out:pageOut={{ fixed: true }}>
+	<div class="gallery-wrapper" in:pageIn={{ fixed: true, duration: DURATION }} out:pageOut={{ fixed: true, duration: DURATION}}>
 		<Gallery media={galleryMedia} />
 	</div>
 {/if}
 
 <article>
-	{#if work.blocks}
+	{#if data.work.blocks}
 		<section id="blocks">
-			{#each work.blocks || [] as block (block._key)}
+			{#each data.work.blocks || [] as block (block._key)}
 				<div class="blocks">
 					{#each block.items || [] as item (item._key)}
 						<div class="block {item._type} {item._type == 'textItem' ? 'portableText su-m' : undefined}">
 							{#if item._type === 'mediaItem'}
-								<Media media={item} width={100 / block.items.length}/>
+								<button
+									type="button"
+									class="media-trigger"
+									onclick={() => gallery.openGallery(galleryMedia.findIndex((m) => m._key === item._key))}
+									onmouseenter={() => (hoveredBlock = true)}
+									onmouseleave={() => (hoveredBlock = false)}
+									aria-label="View in gallery"
+								>
+									<Media media={item} width={100 / block.items.length}/>
+								</button>
 							{:else if item._type === 'textItem'}
 								{#if item.text}
 									<PortableText value={item.text} components={{ block: PortableTextStyle, types: { break: PortableTextStyle }, marks: { link: PortableTextStyle } }} />
@@ -62,25 +68,25 @@
 	<section id="details">
 		<dl class="details">
 			<dt>Client</dt>
-			<dd>{work.client?.title}</dd>
-			{#if work.typology}
+			<dd>{data.work.client?.title}</dd>
+			{#if data.work.typology}
 				<dt>Typology</dt>
-				<dd>{work.typology.title}</dd>
+				<dd>{data.work.typology.title}</dd>
 			{/if}
-			{#if work.year}
+			{#if data.work.year}
 				<dt>Year</dt>
-				<dd>{work.year.slice(0, 4)}</dd>
+				<dd>{data.work.year.slice(0, 4)}</dd>
 			{/if}
-			{#if work.services?.length}
+			{#if data.work.services?.length}
 				<dt>Services</dt>
 				<dd>
-					{#each work.services as service, i}
+					{#each data.work.services as service, i}
 						{#if i > 0}{@html ', '}{/if}{service.title}
 					{/each}
 				</dd>
 			{/if}
-			{#if work.credits?.length}
-				{#each work.credits as credit (credit._key)}
+			{#if data.work.credits?.length}
+				{#each data.work.credits as credit (credit._key)}
 					<dt>{credit.role}</dt>
 					<dd>
 						{#each credit.collaborators as collaborator, i}
@@ -95,21 +101,21 @@
 				{/each}
 			{/if}
 		</dl>
-		{#if work.workInformation}
+		{#if data.work.workInformation}
 			<div class="informations">
 				<h3>Project Information</h3>
 				<div class="portableText informations su-m">
-					<PortableText value={work.workInformation} components={{ block: PortableTextStyle, types: { break: PortableTextStyle }, marks: { link: PortableTextStyle } }} />
+					<PortableText value={data.work.workInformation} components={{ block: PortableTextStyle, types: { break: PortableTextStyle }, marks: { link: PortableTextStyle } }} />
 				</div>
 			</div>
 		{/if}
 	</section>
 
-	{#if work.related?.length}
+	{#if data.work.related?.length}
 		<nav id="related" aria-label="Related works">
 			<h3>More projects to explore</h3>
 			<ul class="related">
-				{#each work.related as related (related.slug?.current)}
+				{#each data.work.related as related (related.slug?.current)}
 					<li class="work">
 						<a
 							href="/works/{related.client?.slug.current}/{related.slug?.current}"
@@ -132,18 +138,30 @@
 		<CursorTag label="View project" />
 	{/key}
 {/if}
+{#if hoveredBlock}
+	<CursorTag label="View" />
+{/if}
 
 <style lang="scss">
-	.gallery-wrapper {
-		position: fixed;
-		inset: 0;
-		z-index: 5;
-	}
+.gallery-wrapper {
+	position: fixed;
+	inset: 0;
+	z-index: 5;
+}
+article {
+	background-color: var(--white);
 	#blocks {
-		background-color: var(--white);
-
 		.blocks {
 			display: flex;
+
+			.media-trigger {
+				display: block;
+				width: 100%;
+				padding: 0;
+				border: 0;
+				background: none;
+				cursor: pointer;
+			}
 
 			.block {
 				width: 100%;
@@ -218,7 +236,9 @@
 				a {
 					width: 100%;
 					padding-bottom: var(--sp-2);
-					
+					:global(.media-container) {
+						border-radius: var(--tagRadius);
+					}
 					.title {
 						display: block;
 						margin-top: var(--sp-7);
@@ -230,4 +250,5 @@
 			}
 		}
 	}
+}
 </style>

@@ -1,6 +1,7 @@
 <script>
 	import { innerWidth, innerHeight } from 'svelte/reactivity/window'
-	import { revealWidth } from '$lib/utils/transitions.js'
+	import { fadeBlur, revealWidth } from '$lib/utils/transitions.js'
+    import { fade } from 'svelte/transition';
 
 	/** @type {{label?: string, direction?: 'left' | 'right'}} */
 	let { label, direction } = $props()
@@ -45,7 +46,8 @@
 	style:top="{centerY}px"
 	aria-hidden="true"
 	>
-		<div class="tag no-pointer cursor-tag" transition:revealWidth|global>
+		<!-- <div class="tag no-pointer cursor-tag" transition:revealWidth|global> -->
+		<div class="tag no-pointer cursor-tag">
 			{#if direction}
 				<svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg" class:rotate={direction === 'left'}>
 					<path d="M9.75 5.19615L4.64275e-07 10.3923L9.18537e-07 -9.03023e-07L9.75 5.19615Z" />

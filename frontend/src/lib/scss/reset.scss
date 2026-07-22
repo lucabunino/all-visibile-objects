@@ -57,7 +57,7 @@ ul, ol {
 }
 *:focus-visible {
 	outline-color: var(--focusColor);
-	outline-style: auto;
-	outline-width: 3px;
+	outline-style: solid;
+	outline-width: 1px;
 	outline-offset: 0;
 }

@@ -1,8 +1,8 @@
 <script>
 	import { urlFor } from '$lib/utils/image.js'
 
-	/** @type {{media: any, bp?: number, width?: number, class?: string}} */
-	let { media, bp = 768, width = 100, class: className = '' } = $props()
+	/** @type {{media: any, bp?: number, width?: number, class?: string, opacity?: boolean, blur?: boolean, scale?: boolean, duration?: number}} */
+	let { media, bp = 768, width = 100, class: className = '', opacity = true, blur = true, scale = false, duration = 500 } = $props()
 
 	/** @param {() => string | undefined} fn */
 	function safely(fn) {
@@ -43,33 +43,41 @@
 	class="media-container {className}"
 	style:aspect-ratio={aspectRatio}
 	style:--aspect-ratio={aspectRatio}
-	style:background-image={lqip ? `url(${lqip})` : undefined}
+	style:--duration="{duration}ms"
 	{@attach observeEntry}
 >
-	{#if media?.type === 'video' && media.video}
-		<video autoplay muted loop playsinline poster={safely(() => urlFor(media.videoPoster)?.url())} onloadeddata={() => (loaded = true)}>
-			{#if media.videoMobile}
-				<source media="(max-width: 768px)" src={media.videoMobile.asset?.url} type="video/mp4" />
-			{/if}
-			<source src={media.video.asset?.url} type="video/mp4" />
-		</video>
-	{:else if media?.image}
-		<picture>
-			{#if media.imageMobile}
-				<source media="(max-width: {bp}px)" srcset={srcset(media.imageMobile)} />
-			{/if}
-			<img
-				src={safely(() => urlFor(media.image)?.width(1200).url())}
-				srcset={srcset(media.image)}
-				sizes="(max-width: {bp}px) 100vw, {width}vw"
-				loading="lazy"
-				alt=""
-				onload={() => (loaded = true)}
-			/>
-		</picture>
-	{/if}
-
-	<div class="blur-overlay" class:loaded={loaded && entered} aria-hidden="true"></div>
+	<div
+		class="content"
+		class:opacity
+		class:loaded={loaded && entered}
+		style:background-image={lqip ? `url(${lqip})` : undefined}
+	>
+		{#if media?.type === 'video' && media.video}
+			<video autoplay muted loop playsinline class:blur class:scale class:loaded={loaded && entered} poster={safely(() => urlFor(media.videoPoster)?.url())} onloadeddata={() => (loaded = true)}>
+				{#if media.videoMobile}
+					<source media="(max-width: 768px)" src={media.videoMobile.asset?.url} type="video/mp4" />
+				{/if}
+				<source src={media.video.asset?.url} type="video/mp4" />
+			</video>
+		{:else if media?.image}
+			<picture>
+				{#if media.imageMobile}
+					<source media="(max-width: {bp}px)" srcset={srcset(media.imageMobile)} />
+				{/if}
+				<img
+					src={safely(() => urlFor(media.image)?.width(1200).url())}
+					srcset={srcset(media.image)}
+					sizes="(max-width: {bp}px) 100vw, {width}vw"
+					loading="lazy"
+					alt=""
+					class:blur
+					class:scale
+					class:loaded={loaded && entered}
+					onload={() => (loaded = true)}
+				/>
+			</picture>
+		{/if}
+	</div>
 </div>
 
 <style lang="scss">
@@ -78,8 +86,25 @@
 		position: relative;
 		overflow: hidden;
 		isolation: isolate;
-		background-size: cover;
-		background-position: center;
+		background-color: var(--gray-subtle);
+
+		.content {
+			position: absolute;
+			inset: 0;
+			background-size: cover;
+			background-position: center;
+			transition: var(--transition);
+			transition-duration: var(--duration);
+			transition-delay: 100ms;
+
+			&.opacity {
+				opacity: 0;
+			}
+
+			&.loaded {
+				opacity: 1;
+			}
+		}
 
 		picture {
 			display: contents;
@@ -93,19 +118,23 @@
 			width: 100%;
 			height: 100%;
 			max-width: 100%;
-		}
-
-		.blur-overlay {
-			position: absolute;
-			inset: 0;
-			z-index: 2;
-			backdrop-filter: blur(20px);
+			will-change: filter, transform;
 			transition: var(--transition);
-			transition-delay: 100ms;
-			pointer-events: none;
 
-			&.loaded {
-				backdrop-filter: blur(0);
+			&.blur {
+				filter: blur(20px);
+
+				&.loaded {
+					filter: blur(0);
+				}
+			}
+
+			&.scale {
+				transform: scale(1.02);
+
+				&.loaded {
+					transform: scale(1);
+				}
 			}
 		}
 

@@ -12,6 +12,8 @@
 	import { page } from '$app/state'
 
 	let { data, children } = $props()
+	const DURATION = 500
+	
 </script>
 
 <Head />
@@ -19,7 +21,7 @@
 <HeaderWork nav={data.nav} />
 
 {#key page.url.pathname}
-	<div class="page" data-template={getTemplate(page.route.id)} in:pageIn out:pageOut>
+	<div class="page" data-template={getTemplate(page.route.id)} in:pageIn={{ duration: DURATION, delay: DURATION/2 }} out:pageOut={{ duration: DURATION }}>
 		<main data-template={getTemplate(page.route.id)}>
 			{@render children()}
 		</main>

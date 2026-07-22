@@ -3,15 +3,16 @@
 :root {
 	--white: #FFF;
 	--black: #000;
-	--gray-light: #878787;
 	--gray: #82828266;
-	--focusColor: #2568dc;
+	--gray-light: #878787;
+	--gray-subtle: #ededed;
+	--focusColor: #fafafa;
 
 	--tagHeight: calc(1cap + var(--sp-8)*2);
 	--worksWidth: 20rem;
 	--headerHeight: 4rem;
 	--footerHeight: 4rem;
-	--transition: cubic-bezier(.77, 0, .175, 1) .3s;
+	--transition: cubic-bezier(0.42, 0, 0.58, 1) .5s;
 
 	@for $i from 1 through 200 {
 		--sp-#{$i}: #{calc($i / 14)}rem;
@@ -70,11 +71,13 @@ body {
 	isolation: isolate;
     mix-blend-mode: normal;
     will-change: backdrop-filter, transform;
-	user-select: none;	
+	user-select: none;
 	transform: translateZ(0);
 	backface-visibility: hidden;
 	cursor: pointer;
 	white-space: pre;
+	border-radius: var(--tagRadius, 0px);
+	transition: border-radius .3s cubic-bezier(.77, 0, .175, 1);
 
 	&.no-pointer {
 		cursor: default;
@@ -85,7 +88,7 @@ body {
 		opacity: 1;
 	}
 	&:focus-visible {
-		outline-width: 2px;
+		outline-width: 1px;
 		background-color: var(--black);
 		opacity: 1;
 	}
@@ -104,7 +107,7 @@ body {
 		}
 
 		&:focus-visible {
-			outline-width: 2px;
+			outline-width: 1px;
 			outline-offset: 0;
 			background-color: var(--gray);
 			opacity: 1;

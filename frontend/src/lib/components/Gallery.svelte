@@ -5,14 +5,16 @@
 	import { revealWidth } from '$lib/utils/transitions.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
 
-	const DURATION = 200
+	const DURATION = 300
+	const IDLE_DELAY = 10000
+	const LOOP_INTERVAL = 4000
 
 	/** @type {{media: any[]}} */
 	let { media = [] } = $props()
 
 	const gallery = getGallery()
 
-	let index = $state(0)
+	let index = $state(gallery.startIndex)
 	/** @type {'left' | 'right' | null} */
 	let hovered = $state(null)
 
@@ -22,11 +24,50 @@
 	function prev() { index = (index - 1 + media.length) % media.length }
 	function next() { index = (index + 1) % media.length }
 
+	/** @type {ReturnType<typeof setTimeout>} */
+	let idleTimeout
+	/** @type {ReturnType<typeof setInterval>} */
+	let loopInterval
+
+	function startLoop() {
+		loopInterval = setInterval(next, LOOP_INTERVAL)
+	}
+
+	// 10s after the last real interaction, start auto-advancing every 3s —
+	// the auto-advance itself doesn't count as an interaction, only clicks
+	// and arrow keys reset the idle wait (see handlePrev/handleNext/handleKeydown)
+	function resetIdle() {
+		clearInterval(loopInterval)
+		clearTimeout(idleTimeout)
+		idleTimeout = setTimeout(startLoop, IDLE_DELAY)
+	}
+
+	function handlePrev() {
+		prev()
+		resetIdle()
+	}
+	function handleNext() {
+		next()
+		resetIdle()
+	}
+
+	$effect(() => {
+		// on mount (no interaction yet), the first advance only waits
+		// LOOP_INTERVAL — setInterval's own first tick already provides that
+		// wait, so no extra setTimeout on top (that would double it to 2x).
+		// The full IDLE_DELAY only applies after a real interaction, via resetIdle
+		startLoop()
+		return () => {
+			clearTimeout(idleTimeout)
+			clearInterval(loopInterval)
+		}
+	})
+
 	/** @param {KeyboardEvent} e */
 	function handleKeydown(e) {
 		if (e.key === 'Escape') close()
-		else if (e.key === 'ArrowLeft') prev()
-		else if (e.key === 'ArrowRight') next()
+		else if (e.key === 'ArrowLeft') handlePrev()
+		else if (e.key === 'ArrowRight') handleNext()
 	}
 </script>
 
@@ -40,7 +81,7 @@
 	<button
 		class="zone prev"
 		type="button"
-		onclick={prev}
+		onclick={handlePrev}
 		onmouseenter={() => (hovered = 'left')}
 		onmouseleave={() => (hovered = null)}
 		aria-label="Previous"
@@ -48,14 +89,14 @@
 	<button
 		class="zone next"
 		type="button"
-		onclick={next}
+		onclick={handleNext}
 		onmouseenter={() => (hovered = 'right')}
 		onmouseleave={() => (hovered = null)}
 		aria-label="Next"
 	></button>
 
 	{#key media[index]}
-		<Media media={media[index]} class="gallery" />
+		<Media media={media[index]} class="gallery" blur={false} opacity={true} scale={false} duration={300}/>
 	{/key}
 </div>
 
