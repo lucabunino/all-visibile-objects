@@ -22,6 +22,7 @@
 
 	const aspectRatio = $derived(media?.type === 'video' ? media?.posterAspectRatio : media?.aspectRatio)
 	const lqip = $derived(media?.type === 'video' ? media?.posterLqip : media?.lqip)
+	const palette = $derived(media?.type === 'video' ? media?.posterPalette : media?.palette)
 
 	let loaded = $state(false)
 	let entered = $state(false)
@@ -44,6 +45,7 @@
 	style:aspect-ratio={aspectRatio}
 	style:--aspect-ratio={aspectRatio}
 	style:--duration="{duration}ms"
+	style:background-color={palette}
 	{@attach observeEntry}
 >
 	<div

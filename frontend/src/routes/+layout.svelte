@@ -21,7 +21,7 @@
 <HeaderWork nav={data.nav} />
 
 {#key page.url.pathname}
-	<div class="page" data-template={getTemplate(page.route.id)} in:pageIn={{ duration: DURATION, delay: DURATION/2 }} out:pageOut={{ duration: DURATION }}>
+	<div class="page" data-template={getTemplate(page.route.id)} in:pageIn={{ duration: DURATION, delay: 0 }} out:pageOut={{ duration: DURATION }}>
 		<main data-template={getTemplate(page.route.id)}>
 			{@render children()}
 		</main>

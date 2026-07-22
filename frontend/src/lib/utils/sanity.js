@@ -16,12 +16,14 @@ const mediaFields = `
 	imageMobile,
 	"aspectRatio": image.asset->metadata.dimensions.aspectRatio,
 	"lqip": image.asset->metadata.lqip,
+	"palette": image.asset->metadata.palette.dominant.background,
 	video{asset->{url}},
 	videoMobile{asset->{url}},
 	videoPoster,
 	videoPosterMobile,
 	"posterAspectRatio": videoPoster.asset->metadata.dimensions.aspectRatio,
-	"posterLqip": videoPoster.asset->metadata.lqip
+	"posterLqip": videoPoster.asset->metadata.lqip,
+	"posterPalette": videoPoster.asset->metadata.palette.dominant.background
 `
 const media = `{${mediaFields}}`
 

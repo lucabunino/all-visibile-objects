@@ -264,7 +264,7 @@
 			{#if !gallery.open}
 				<a id="logo" class="tag" href="/"
 				in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
-				out:revealWidth|global={{ duration: DURATION }}>All Visible Object</a>
+				out:revealWidth|global={{ duration: DURATION }}>All Visible Objects</a>
 			{/if}
 			<nav aria-label="Main" id="menu" style:--clientsCount={nav.length}>
 				<ul class="menu" bind:this={navEl}>
