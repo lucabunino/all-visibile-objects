@@ -83,6 +83,8 @@
 </div>
 
 <style lang="scss">
+	@use '$lib/scss/breakpoints.module' as bp;
+
 	.media-container {
 		display: block;
 		position: relative;
@@ -151,5 +153,8 @@
 				height: 100%;
 			}
 		}
+	}
+
+	@media (width <= #{bp.$md}) {
 	}
 </style>

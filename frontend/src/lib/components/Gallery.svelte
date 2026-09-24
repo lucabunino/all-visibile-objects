@@ -107,6 +107,8 @@
 {/if}
 
 <style lang="scss">
+	@use '$lib/scss/breakpoints.module' as bp;
+
 	.overlay {
 		position: fixed;
 		inset: 0;
@@ -138,5 +140,8 @@
 				left: auto;
 			}
 		}
+	}
+
+	@media (width <= #{bp.$md}) {
 	}
 </style>

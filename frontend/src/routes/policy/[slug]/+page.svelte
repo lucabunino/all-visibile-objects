@@ -14,6 +14,8 @@
 </article>
 
 <style lang="scss">
+	@use '$lib/scss/breakpoints.module' as bp;
+
 	article {
 		padding: calc(var(--tagHeight) + var(--sp-15)*3) var(--sp-15);
 		display: grid;
@@ -29,5 +31,8 @@
 		.portableText {
 			max-width: 60ch;
 		}
+	}
+
+	@media (width <= #{bp.$md}) {
 	}
 </style>

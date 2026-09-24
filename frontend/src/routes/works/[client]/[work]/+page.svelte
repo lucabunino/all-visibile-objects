@@ -143,11 +143,14 @@
 {/if}
 
 <style lang="scss">
+@use '$lib/scss/breakpoints.module' as bp;
+
 .gallery-wrapper {
 	position: fixed;
 	inset: 0;
 	z-index: 5;
 }
+
 article {
 	background-color: var(--white);
 	#blocks {
@@ -200,6 +203,7 @@ article {
 		align-items: start;
 		grid-template-columns: repeat(12, 1fr);
 		column-gap: var(--sp-15);
+		row-gap: var(--sp-58);
 		padding: var(--sp-100) var(--sp-15) 0;
 
 		.details {
@@ -231,6 +235,7 @@ article {
 			display: grid;
 			grid-template-columns: repeat(6, 1fr);
 			column-gap: var(--sp-15);
+			row-gap: var(--sp-30);
 
 			.work {
 				a {
@@ -247,6 +252,54 @@ article {
 						color: var(--gray);
 					}
 				}
+			}
+		}
+	}
+	@media (width <= #{bp.$xl}) {
+		#related {
+			.related {
+				grid-template-columns: repeat(4, 1fr);
+			}
+		}
+	}
+	@media (width <= #{bp.$md}) {
+		#related {
+			padding: var(--sp-110) var(--sp-15) 0;
+
+			.related {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+		#blocks {
+			.blocks {
+				flex-direction: column;
+
+				.block {
+					&.textItem {
+						width: 100%;
+					}
+				}
+			}
+		}
+		#details {
+			padding: var(--sp-50) var(--sp-15) 0;
+
+			.details {
+				grid-column: 1 / span 12;
+				dt { grid-column: 1 / span 2; }
+				dd { grid-column: 3 / span 4; }
+			}
+
+			.informations {
+				grid-column: 1 / span 12;
+				grid-row: 1;
+			}
+		}
+	}
+	@media (width <= #{bp.$xs}) {
+		#related {
+			.related {
+				grid-template-columns: repeat(1, 1fr);
 			}
 		}
 	}

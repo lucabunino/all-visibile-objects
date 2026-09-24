@@ -34,6 +34,8 @@
 {/if}
 
 <style lang="scss">
+@use '$lib/scss/breakpoints.module' as bp;
+
 .works {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
@@ -65,5 +67,20 @@
 		}
 
 	}
+	@media (width <= #{bp.$sm}) {
+		grid-template-columns: repeat(1, 1fr);
+
+		.work {
+			a {
+				.tags {
+					inset: auto var(--sp-15) var(--sp-15) var(--sp-15);
+					.tag {
+						position: relative;
+					}
+				}
+			}
+		}
+	}
 }
+
 </style>

@@ -17,15 +17,18 @@
 		{#if about.email}
 			<a class="email tag black" href="mailto:{about.email}">Email us</a>
 		{/if}
+		<div class="break"></div>
 		{#each policies as policy (policy.slug?.current)}
 			<a class="tag" href="/policy/{policy.slug?.current}">{policy.title}</a>
 		{/each}
-		<button class="tag" type="button" onclick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Scroll to top" disabled={scrollY === 0}>↑</button>
+		<button class="tag scroll" type="button" onclick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Scroll to top" disabled={scrollY === 0}>↑</button>
 	</div>
 </footer>
 
 
 <style lang="scss">
+@use '$lib/scss/breakpoints.module' as bp;
+
 footer {
 	display: flex;
 	flex-direction: column;
@@ -38,15 +41,54 @@ footer {
 		flex-basis: 100%;
 		margin: var(--sp-200) auto;
 		width: fit-content;
+		color: var(--black);
+		background-color: var(--gray-subtle);
+
+		@media (pointer: fine) {&:hover {
+			color: var(--white);
+		}}
 	}
 
 	.footer {
 		display: flex;
-		gap: var(--sp-5);
+		flex-wrap: wrap;
+		column-gap: var(--sp-5);
 		align-items: baseline;
+		
+		.break {
+			display: none;
+		}
 
 		.year {
 			margin-right: auto;
+		}
+	}
+
+	@media (width <= #{bp.$md}) {
+		.talk {
+			margin: var(--sp-145) auto var(--sp-160);
+		}
+		.footer {
+			.year {
+				order: 5;
+				flex-basis: 100%;
+				margin-top: var(--sp-10);
+			}
+			.scroll {
+				margin-left: auto;
+			}
+		}
+	}
+	@media (width <= #{bp.$xxs}) {
+		.footer {
+			.break {
+				display: block;
+				flex-basis: 100%;
+				margin-bottom: var(--sp-5);
+			}
+			.year {
+				margin-top: var(--sp-15);
+			}
 		}
 	}
 }

@@ -221,6 +221,8 @@
 {/if}
 
 <style lang="scss">
+	@use '$lib/scss/breakpoints.module' as bp;
+
 	header {
 		position: fixed;
 		z-index: 11;
@@ -285,6 +287,23 @@
 
 				svg {
 					fill: var(--white);
+				}
+			}
+		}
+
+		@media (width <= #{bp.$md}) {
+			.menu {
+				grid-column: 1 / span 12;
+
+				.details { 
+					display: none;
+				}
+				#client {
+					#clientWorks {
+						.tag {
+							width: calc(100vw - var(--sp-30));
+						}
+					}
 				}
 			}
 		}

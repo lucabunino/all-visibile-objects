@@ -23,6 +23,8 @@
 {/if}
 
 <style lang="scss">
+@use '$lib/scss/breakpoints.module' as bp;
+
 :global(.portableText h3 + *) {
 	margin-top: .8em;
 }
@@ -52,6 +54,9 @@
 }
 :global([data-template="policy"] .portableText p + p),
 :global([data-template="work"] .portableText p + p) {
-	
+
+}
+
+@media (width <= #{bp.$md}) {
 }
 </style>

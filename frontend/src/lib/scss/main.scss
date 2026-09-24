@@ -25,9 +25,6 @@
 }
 
 html {
-	-webkit-font-smoothing: antialiased;
-	font-size: clamp(12px, calc(7px + .4vw), 15px);
-	line-height: 1.2;
 	overscroll-behavior-x: none;
 }
 
@@ -78,15 +75,22 @@ body {
 	white-space: pre;
 	border-radius: var(--tagRadius, 0px);
 	transition: border-radius .3s cubic-bezier(.77, 0, .175, 1);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: stretch;
 
 	&.no-pointer {
 		cursor: default;
 	}
-	&:not(.no-pointer):hover,
 	&.active {
 		background-color: var(--black);
 		opacity: 1;
 	}
+	@media (pointer: fine) {&:not(.no-pointer):hover{
+		background-color: var(--black);
+		opacity: 1;
+	}}
 	&:focus-visible {
 		outline-width: 1px;
 		background-color: var(--black);
@@ -99,12 +103,14 @@ body {
 
 	&.black {
 		background-color: var(--black);
-
-		&:not(.no-pointer):hover,
 		&.active {
 			background-color: var(--gray);
 			opacity: 1;
 		}
+		@media (pointer: fine) {&:not(.no-pointer):hover {
+			background-color: var(--gray);
+			opacity: 1;
+		}}
 
 		&:focus-visible {
 			outline-width: 1px;
@@ -120,9 +126,9 @@ body {
 }
 .hover-gray,
 .hover-gray:any-link {
-	&:hover {
+	@media (pointer: fine) {&:hover {
 		color: var(--gray-light);
-	}
+	}}
 }
 .overflow-y {
 	overflow-y: scroll;

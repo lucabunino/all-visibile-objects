@@ -7,6 +7,13 @@
   font-display: block;
 }
 @font-face {
+  font-family: "MonumentGrotesk";
+  src: url("$lib/assets/fonts/ABCMonumentGrotesk-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
   font-family: "SuisseIntl Fallback";
   src: local("Arial");
   size-adjust: 106.15%;
@@ -14,29 +21,39 @@
   descent-override: 29.30%;
   line-gap-override: 0%;
 }
+html {
+	-webkit-font-smoothing: antialiased;
+	font-size: clamp(12px, calc(7px + .4vw), 15px);
+	line-height: 1.2;
+}
 .su {
 	&,
-	&-s {
+	&-s,
+	&-m {
 		font-family: "SuisseIntl", "SuisseIntl Fallback", Helvetica, Arial, sans-serif;
 		font-optical-sizing: auto;
 		font-style: normal;
 	}
-	&-s		{ font-size: 1rem; letter-spacing: -0em; line-height: 1.143; font-weight: 350; }
-	&-m		{ font-size: 1.714rem; letter-spacing: -0.02em; line-height: 1.042; font-weight: 350; }
+	&-s		{ font-size: 1rem; letter-spacing: -0em; line-height: 1.143; font-weight: 600; }
+	&-m		{ font-size: 1.714rem; letter-spacing: -0.01em; line-height: 1.042; font-weight: 600; }
 
 	@media (width <= bp.$md) {
 		&-s,
-		&-s-md	{ font-size: 1.1538rem; letter-spacing: -0.01em; line-height: 1.2; font-weight: 350; }
+		&-s-md	{ font-size: 1rem; letter-spacing: -0em; line-height: 1.083; font-weight: 600; }
 		&-m,
-		&-m-md	{ font-size: 1.1538rem; letter-spacing: -0.01em; line-height: 1.2; font-weight: 350; }
+		&-m-md	{ font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.055; font-weight: 600; }
 	}
-
-	@media (width <= bp.$xxs) {
-		&-s,
-		&-s-md	{ font-size: 1rem; letter-spacing: -0.01em; line-height: 1.2; font-weight: 350; }
-		&-m,
-		&-m-md	{ font-size: 1rem; letter-spacing: -0.01em; line-height: 1.2; font-weight: 350; }
+}
+.mo {
+	&,
+	&-s,
+	&-m, .su-m {
+		font-family: "MonumentGrotesk", "SuisseIntl Fallback", Helvetica, Arial, sans-serif;
+		font-optical-sizing: auto;
+		font-style: normal;
 	}
+	&-s		{ font-size: 1rem; letter-spacing: -0em; line-height: 1.143; font-weight: 500; }
+	&-m, .su-m		{ font-size: 1.714rem; letter-spacing: -0.02em; line-height: 1.042; font-weight: 500; }
 }
 .bold			{ font-weight: 700; }
 .uppercase		{

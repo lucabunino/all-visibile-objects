@@ -1,6 +1,6 @@
 <script>
 	import { tick } from 'svelte'
-	import { scrollY } from 'svelte/reactivity/window'
+	import { scrollY, innerWidth } from 'svelte/reactivity/window'
 	import { page } from '$app/state'
 	import { afterNavigate } from '$app/navigation'
 	import { getTemplate } from '$lib/utils/template'
@@ -8,6 +8,7 @@
 	import { getNavMode } from '$lib/stores/navMode.svelte.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
 	import { getTagRadius } from '$lib/stores/tagRadius.svelte.js'
+	import bp from '$lib/scss/breakpoints.module.scss'
 
 	let { nav = [], about } = $props()
 
@@ -15,9 +16,7 @@
 	const gallery = getGallery()
 	const tagRadius = getTagRadius()
 
-	$effect(() => {
-		document.documentElement.style.setProperty('--tagRadius', tagRadius.rounded ? '3px' : '0px')
-	})
+	const isMobile = $derived(innerWidth.current && innerWidth.current <= parseInt(bp.md))
 
 	const showNav = $derived(getTemplate(page.route.id) !== 'work')
 
@@ -30,6 +29,7 @@
 	const SCROLL_DELTA = 10 // minimum movement before a direction change registers
 	let lastScrollY = $state(0)
 	let headerVisible = $state(true)
+
 	$effect(() => {
 		const y = scrollY.current ?? 0
 		if (!showNav || y <= 0) {
@@ -132,7 +132,7 @@
 
 	/** @param {MouseEvent} e */
 	function handleWindowClick(e) {
-		if (navMode.mode !== 'click' || !worksOpen) return
+		if ((navMode.mode !== 'click' && !isMobile) || !worksOpen) return
 		if (e.target instanceof Node && !navEl?.contains(e.target)) closeAll()
 	}
 
@@ -214,8 +214,12 @@
 
 {#snippet worksDropdown()}
 	{#if worksOpen}
+		{#if isMobile}
+			<div class="backdrop" aria-hidden="true"></div>
+		{/if}
 		<div id="clients">
-			<ul role="menu" aria-label="Clients" class="clients overflow-y">
+			<ul role="menu" aria-label="Clients" class="clients overflow-y" class:mobileHidden={isMobile && activeClient}>
+				{#key isMobile && activeClientSlug === null}
 				{#each nav as client, i (client.slug?.current)}
 					<li role="none" class="client tag-wrapper">
 						<button class="tag" class:no-pointer={navMode.mode === 'mouseover'} type="button" role="menuitem"
@@ -238,6 +242,15 @@
 						</button>
 					</li>
 				{/each}
+				{#if isMobile}
+					<li class="tag-wrapper">
+						<button class="tag" type="button" aria-label="Close" onclick={closeAll}
+						in:revealWidth|global={{ duration: DURATION, delay: nav.length * STEP }}
+						out:revealWidth|global={{ duration: worksOpen ? 0 : DURATION }}
+						>× Close</button>
+					</li>
+				{/if}
+				{/key}
 			</ul>
 			{#if activeClient}
 				<ul class="works overflow-y" aria-label="Works for {activeClient.title}">
@@ -252,6 +265,14 @@
 							{work.title}</a>
 						</li>
 					{/each}
+					{#if isMobile}
+						<li class="work tag-wrapper">
+							<button class="tag" type="button" aria-label="Back" onclick={() => (activeClientSlug = null)}
+							in:revealWidth|global={{ duration: DURATION, delay: activeClient.works.length * STEP }}
+							out:revealWidth|global={{ duration: activeClient ? 0 : DURATION }}
+							>← Back</button>
+						</li>
+					{/if}
 				</ul>
 			{/if}
 		</div>
@@ -261,14 +282,14 @@
 {#if headerVisible}
 	<header>
 		<div style:display="contents" role="menubar" tabindex="-1" bind:this={headerEl} onkeydown={handleTopLevelKeydown}>
-			{#if !gallery.open}
+			{#if !gallery.open && !(isMobile && !showNav)}
 				<a id="logo" class="tag" href="/"
 				in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
 				out:revealWidth|global={{ duration: DURATION }}>All Visible Objects</a>
 			{/if}
 			<nav aria-label="Main" id="menu" style:--clientsCount={nav.length}>
 				<ul class="menu" bind:this={navEl}>
-					{#if navMode.mode === 'mouseover' && showNav}
+					{#if navMode.mode === 'mouseover' && showNav && !isMobile}
 						<li id="works" class="menu-item tag-wrapper" onmouseenter={openWorksHover} onmouseleave={closeWorksHover} onfocusin={openWorksHover} onfocusout={handleWorksFocusOut}
 						in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
 						out:revealWidth|global={{ duration: DURATION }}>
@@ -304,6 +325,8 @@
 {/if}
 
 <style lang="scss">
+@use '$lib/scss/breakpoints.module' as bp;
+
 header {
 	position: fixed;
 	z-index: 10;
@@ -338,11 +361,6 @@ header {
 			}
 
 			#works {
-				button {
-					&:hover {
-						background-color: var(--black);
-					}
-				}
 
 				#clients {
 					position: relative;
@@ -359,6 +377,10 @@ header {
 						row-gap: var(--sp-5);
 						padding: var(--sp-5) 0;
 						max-height: calc(100vh - var(--tagHeight) - var(--sp-15));
+
+						&.mobileHidden {
+							display: none;
+						}
 
 						.client {
 							button {
@@ -391,6 +413,72 @@ header {
 				right: var(--sp-15);
 				z-index: 101;
 				margin-left: 0;
+			}
+		}
+	}
+
+	@media (width <= #{bp.$md}) {
+		display: flex;
+		gap: var(--sp-5);
+		justify-content: space-between;
+		pointer-events: all;
+
+		.backdrop {
+			position: fixed;
+			inset: 0;
+			background: transparent;
+			pointer-events: all;
+		}
+
+		#logo {
+			position: relative;
+			top: unset;
+			left: unset;
+		}
+
+		#menu {
+			display: contents;
+
+			.menu {
+				gap: var(--sp-5);
+				
+				> *:not(:first-child) {
+					margin-left: unset;
+				}
+
+				#works {
+					#clients {
+						.tag {
+							width: calc(100vw - var(--sp-30));
+							white-space: pre;
+						}
+
+						.clients {
+							position: fixed;
+							left: var(--sp-15);
+						}
+
+						.works {
+							position: fixed;
+							left: var(--sp-15);
+							padding: var(--sp-5) 0;
+							z-index: 1;
+							// display: flex;
+							// flex-direction: column;
+							// row-gap: var(--sp-5);
+							// min-height: calc(var(--clientsCount)*var(--tagHeight) + var(--clientsCount)*var(--sp-5));
+							// max-height: calc(100vh - var(--tagHeight) - var(--sp-15));
+
+							.work {
+								display: contents;
+							}
+						}
+					}
+				}
+
+				.instagram {
+					display: none;
+				}
 			}
 		}
 	}

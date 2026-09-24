@@ -1,4 +1,5 @@
-$xxs: 375px;
+$xxxs: 250px;
+$xxs: 315px;
 $xs: 480px;
 $sm: 640px;
 $md: 768px;
@@ -8,6 +9,7 @@ $xxl: 1536px;
 $xxxl: 1920px;
 
 :export {
+	xxxs: $xxxs;
 	xxs: $xxs;
 	xs: $xs;
 	sm: $sm;

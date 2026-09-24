@@ -60,6 +60,8 @@
 {/if}
 
 <style lang="scss">
+@use '$lib/scss/breakpoints.module' as bp;
+
 .wrapper {
 	position: fixed;
 	transform: translate(-50%, -50%);
@@ -84,5 +86,8 @@
 			display: none;
 		}
 	}
+}
+
+@media (width <= #{bp.$md}) {
 }
 </style>
