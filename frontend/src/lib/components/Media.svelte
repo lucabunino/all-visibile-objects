@@ -152,9 +152,11 @@
 				width: 100%;
 				height: 100%;
 			}
-		}
-	}
 
-	@media (width <= #{bp.$md}) {
+			@media (width <= #{bp.$md}) {
+				width: min(calc(100vw - var(--sp-15) * 2 - var(--sp-10) * 2), calc((100vh - var(--sp-15) * 8) * var(--aspect-ratio, 1)));
+				height: min(calc(100vh - var(--sp-15) * 8), calc((100vw - var(--sp-15) * 2) / var(--aspect-ratio, 1)));
+			}
+		}
 	}
 </style>

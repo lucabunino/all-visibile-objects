@@ -141,7 +141,4 @@
 			}
 		}
 	}
-
-	@media (width <= #{bp.$md}) {
-	}
 </style>
