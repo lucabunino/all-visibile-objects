@@ -7,6 +7,7 @@
 	import Header from '$lib/components/Header.svelte'
 	import HeaderWork from '$lib/components/HeaderWork.svelte'
 	import Footer from '$lib/components/Footer.svelte'
+	import CookieBanner from '$lib/components/CookieBanner.svelte'
 	import { pageIn, pageOut } from '$lib/utils/transitions.js'
 	import { getTemplate } from '$lib/utils/template.js'
 	import { page } from '$app/state'
@@ -26,6 +27,7 @@
 	<div class={tagRadius.rounded ? 'mo mo-s' : 'su su-s'} style:--tagRadius={tagRadius.rounded ? '3px' : '0px'}>
 		<Header nav={data.nav} about={data.about}/>
 		<HeaderWork nav={data.nav} />
+		<CookieBanner policies={data.policies} />
 
 		{#key page.url.pathname}
 			<div class="page" data-template={getTemplate(page.route.id)} in:pageIn={{ duration: DURATION, delay: 0 }} out:pageOut={{ duration: DURATION }}>

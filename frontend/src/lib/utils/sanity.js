@@ -66,7 +66,7 @@ export async function getAbout() {
 }
 
 export async function getPolicies() {
-	return client.fetch(`*[_type == "policy"]{title, slug}`)
+	return client.fetch(`*[_type == "policy"]{_id, title, slug}`)
 }
 
 /** @param {string} slug */
