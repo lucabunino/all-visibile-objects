@@ -266,14 +266,12 @@ article {
 					@media (pointer: fine) {
 						&:hover {
 							:global(.content) {
-								transition: transform var(--transition-xs);
 								transform: scale(1.02);
 							}
 						}
 					}
 					&:focus-visible {
 						:global(.content) {
-							transition: transform var(--transition-xs);
 							transform: scale(1.02);
 						}
 					}

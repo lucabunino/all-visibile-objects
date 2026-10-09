@@ -5,6 +5,8 @@
 	import { getTemplate } from '$lib/utils/template'
 	import { revealWidth } from '$lib/utils/transitions.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
+	import { innerWidth } from 'svelte/reactivity/window'
+	import bp from '$lib/scss/breakpoints.module.scss'
 
 	let { nav = [] } = $props()
 
@@ -13,6 +15,8 @@
 	const OPEN_DELAY = 150
 
 	const gallery = getGallery()
+
+	const isMobile = $derived(innerWidth.current && innerWidth.current <= parseInt(bp.md))
 
 	const isWork = $derived(getTemplate(page.route.id) === 'work')
 	const work = $derived(page.data.work)
@@ -145,6 +149,14 @@
 							>{sibling.title}</a>
 						</li>
 					{/each}
+					{#if isMobile}
+						<li class="work tag-wrapper">
+							<button class="tag" type="button" aria-label="Close" onclick={closeClient}
+							in:revealWidth|global={{ duration: DURATION, delay: navClient.works.length * STEP }}
+							out:revealWidth|global={{ duration: DURATION }}
+							>× Close</button>
+						</li>
+					{/if}
 				</ul>
 			</div>
 		{/if}

@@ -15,6 +15,7 @@ const mediaFields = `
 	image,
 	imageMobile,
 	"aspectRatio": image.asset->metadata.dimensions.aspectRatio,
+	"aspectRatioMobile": imageMobile.asset->metadata.dimensions.aspectRatio,
 	"lqip": image.asset->metadata.lqip,
 	"palette": image.asset->metadata.palette.dominant.background,
 	video{asset->{url}},

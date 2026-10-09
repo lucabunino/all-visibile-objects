@@ -26,6 +26,7 @@
 	const sizes = $derived(isGallery ? gallerySizes(bp, width) : `(max-width: ${bp}px) 100vw, ${width}vw`)
 
 	const aspectRatio = $derived(media?.type === 'video' ? media?.posterAspectRatio : media?.aspectRatio)
+	const aspectRatioMobile = $derived(media?.type === 'video' ? media?.posterAspectRatio : media?.aspectRatioMobile || media?.aspectRatio)
 	const lqip = $derived(media?.type === 'video' ? media?.posterLqip : media?.lqip)
 	const palette = $derived(media?.type === 'video' ? media?.posterPalette : media?.palette)
 
@@ -56,8 +57,8 @@
 
 <div
 	class="media-container {className}"
-	style:aspect-ratio={aspectRatio}
-	style:--aspect-ratio={aspectRatio}
+	style:--aspect-ratio={aspectRatio || 1}
+	style:--aspect-ratio-mobile={aspectRatioMobile || 1}
 	style:--duration="{duration}ms"
 	style:background-color={palette}
 	{@attach observeEntry}
@@ -105,15 +106,14 @@
 		overflow: hidden;
 		isolation: isolate;
 		background-color: var(--gray-subtle);
+		aspect-ratio: var(--aspect-ratio, 1);
 
 		.content {
 			position: absolute;
 			inset: 0;
 			background-size: cover;
 			background-position: center;
-			transition: var(--transition);
-			transition-duration: var(--duration);
-			transition-delay: 100ms;
+			transition: opacity var(--duration) cubic-bezier(0.42, 0, 0.58, 1) 100ms, transform var(--transition-xs);
 
 			&.opacity {
 				opacity: 0;
@@ -158,6 +158,10 @@
 			}
 		}
 
+		@media (width <= #{bp.$md}) {
+			aspect-ratio: var(--aspect-ratio-mobile, 1);
+		}
+
 		&.gallery {
 			display: inline-block;
 			width: min(calc(100vw - var(--sp-15) * 2), calc((100vh - var(--sp-15) * 8) * var(--aspect-ratio, 1)));
@@ -170,8 +174,8 @@
 			}
 
 			@media (width <= #{bp.$md}) {
-				width: min(calc(100vw - var(--sp-15) * 2 - var(--sp-10) * 2), calc((100vh - var(--sp-15) * 8) * var(--aspect-ratio, 1)));
-				height: min(calc(100vh - var(--sp-15) * 8), calc((100vw - var(--sp-15) * 2) / var(--aspect-ratio, 1)));
+				width: min(calc(100vw - var(--sp-15) * 2 - var(--sp-10) * 2), calc((100vh - var(--sp-15) * 8) * var(--aspect-ratio-mobile, 1)));
+				height: min(calc(100vh - var(--sp-15) * 8), calc((100vw - var(--sp-15) * 2) / var(--aspect-ratio-mobile, 1)));
 			}
 		}
 	}

@@ -78,6 +78,7 @@
 			right: 0;
 			bottom: 0;
 			padding: var(--sp-15);
+			border-radius: 0;
 		}
 	}
 </style>
