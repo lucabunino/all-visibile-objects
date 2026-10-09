@@ -5,16 +5,12 @@
 	import { afterNavigate } from '$app/navigation'
 	import { getTemplate } from '$lib/utils/template'
 	import { revealWidth } from '$lib/utils/transitions.js'
-	import { getNavMode } from '$lib/stores/navMode.svelte.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
-	import { getTagRadius } from '$lib/stores/tagRadius.svelte.js'
 	import bp from '$lib/scss/breakpoints.module.scss'
 
 	let { nav = [], about } = $props()
 
-	const navMode = getNavMode()
 	const gallery = getGallery()
-	const tagRadius = getTagRadius()
 
 	const isMobile = $derived(innerWidth.current && innerWidth.current <= parseInt(bp.md))
 
@@ -69,16 +65,6 @@
 
 	let activeClient = $derived(nav.find((c) => c.slug?.current === activeClientSlug))
 
-	/** @param {KeyboardEvent} e */
-	function handleKeydown(e) {
-		if (e.shiftKey && e.key.toLowerCase() === 'n') {
-			navMode.toggle()
-			closeAll()
-		} else if (e.shiftKey && e.key.toLowerCase() === 'r') {
-			tagRadius.toggle()
-		}
-	}
-
 	function closeAll() {
 		clearTimeout(openTimeout)
 		worksOpen = false
@@ -132,7 +118,7 @@
 
 	/** @param {MouseEvent} e */
 	function handleWindowClick(e) {
-		if ((navMode.mode !== 'click' && !isMobile) || !worksOpen) return
+		if (!isMobile || !worksOpen) return
 		if (e.target instanceof Node && !navEl?.contains(e.target)) closeAll()
 	}
 
@@ -210,7 +196,7 @@
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} onclick={handleWindowClick} />
+<svelte:window onclick={handleWindowClick} />
 
 {#snippet worksDropdown()}
 	{#if worksOpen}
@@ -222,7 +208,7 @@
 				{#key isMobile && activeClientSlug === null}
 				{#each nav as client, i (client.slug?.current)}
 					<li role="none" class="client tag-wrapper">
-						<button class="tag" class:no-pointer={navMode.mode === 'mouseover'} type="button" role="menuitem"
+						<button class="tag" class:no-pointer={!isMobile} type="button" role="menuitem"
 						bind:this={clientRefs[i]}
 						data-slug={client.slug?.current}
 						in:revealWidth|global={{ duration: DURATION, delay: i * STEP }}
@@ -230,7 +216,7 @@
 						class:active={activeClientSlug === client.slug?.current}
 						class:inactive={activeClient && activeClientSlug !== client.slug?.current}
 						aria-expanded={activeClientSlug === client.slug?.current}
-						onmouseenter={() => navMode.mode === 'mouseover' && (activeClientSlug = client.slug?.current)}
+						onmouseenter={() => !isMobile && (activeClientSlug = client.slug?.current)}
 						onclick={() => (activeClientSlug = client.slug?.current)}
 						onfocus={() => (activeClientSlug = client.slug?.current)}
 						onkeydown={(e) => handleClientKeydown(e, i, client.slug?.current)}
@@ -289,7 +275,7 @@
 			{/if}
 			<nav aria-label="Main" id="menu" style:--clientsCount={nav.length}>
 				<ul class="menu" bind:this={navEl}>
-					{#if navMode.mode === 'mouseover' && showNav && !isMobile}
+					{#if showNav && !isMobile}
 						<li id="works" class="menu-item tag-wrapper" onmouseenter={openWorksHover} onmouseleave={closeWorksHover} onfocusin={openWorksHover} onfocusout={handleWorksFocusOut}
 						in:revealWidth|global={{ duration: DURATION, delay: DURATION }}
 						out:revealWidth|global={{ duration: DURATION }}>

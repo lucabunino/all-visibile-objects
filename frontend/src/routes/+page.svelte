@@ -1,10 +1,13 @@
 <script>
 	import Media from '$lib/components/Media.svelte'
-	import CursorTag from '$lib/components/CursorTag.svelte'
+	import { revealWidth } from '$lib/utils/transitions.js'
 
 	let { data } = $props()
 
-	let hovered = $state(null)
+	const DURATION = 200
+
+	/** @type {string | null | undefined} */
+	let hoveredSlug = $state(null)
 </script>
 
 <h1 class="sr-only">All Visible Object</h1>
@@ -14,24 +17,23 @@
 		<li class="work">
 			<a
 				href="/works/{work.client?.slug?.current}/{work.slug?.current}"
-				onmouseenter={() => (hovered = work)}
-				onmouseleave={() => (hovered = null)}
+				onmouseenter={() => (hoveredSlug = work.slug?.current)}
+				onmouseleave={() => (hoveredSlug = null)}
+				onfocus={() => (hoveredSlug = work.slug?.current)}
+				onblur={() => (hoveredSlug = null)}
 			>
 				<Media media={work.thumbnail} class="homepage" width=50/>
 				<div class="tags">
 					<span class="tag client">{work.client ? work.client.title : 'Missing client'}</span>
 					<span class="tag title">{work.title}</span>
+					{#if hoveredSlug === work.slug?.current}
+						<span class="tag view black" in:revealWidth={{ duration: DURATION }} out:revealWidth={{ duration: DURATION }}>View project</span>
+					{/if}
 				</div>
 			</a>
 		</li>
 	{/each}
 </ul>
-
-{#if hovered}
-	{#key hovered}
-		<CursorTag label="View project" />
-	{/key}
-{/if}
 
 <style lang="scss">
 @use '$lib/scss/breakpoints.module' as bp;
@@ -45,8 +47,17 @@
 
 		a {
 			display: block;
+			@media (pointer: fine) {
+				&:hover {
+					:global(.content) {
+						transition: transform var(--transition-xs);
+						transform: scale(1.02);
+					}
+				}
+			}
 			&:focus-visible {
 				:global(.content) {
+					transition: transform var(--transition-xs);
 					transform: scale(1.02);
 				}
 			}
@@ -55,12 +66,17 @@
 				position: absolute;
 				inset: var(--sp-15);
 				pointer-events: none;
+				display: flex;
+				justify-content: flex-start;
+				align-items: flex-start;
+				gap: var(--sp-5);
 				// margin-top: 50%;
 				// transform: translateY(-50%);
 				// height: fit-content;
 
 				.tag {
-					position: sticky;
+					position: sticky; //testing fixed tags
+					position: relative;
 					top: calc(50% - var(--tagHeight)/2);
 				}
 			}

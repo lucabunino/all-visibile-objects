@@ -4,7 +4,6 @@
 	import { browser } from '$app/environment'
 	import { getTemplate } from '$lib/utils/template'
 	import { revealWidth } from '$lib/utils/transitions.js'
-	import { getNavMode } from '$lib/stores/navMode.svelte.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
 
 	let { nav = [] } = $props()
@@ -13,7 +12,6 @@
 	const STEP = 50
 	const OPEN_DELAY = 150
 
-	const navMode = getNavMode()
 	const gallery = getGallery()
 
 	const isWork = $derived(getTemplate(page.route.id) === 'work')
@@ -60,27 +58,6 @@
 		requestAnimationFrame(() => {
 			if (!wrapper.contains(document.activeElement)) closeClient()
 		})
-	}
-
-	// mousedown fires before focus — same capture trick as Header's Works button
-	let clientOpenBeforeInteraction = false
-
-	function captureClientOpenState() {
-		clientOpenBeforeInteraction = clientOpen
-	}
-
-	function toggleClientClick() {
-		clientOpen = !clientOpenBeforeInteraction
-	}
-
-	/** @param {MouseEvent} e */
-	function handleWindowClick(e) {
-		if (navMode.mode !== 'click' || !clientOpen) return
-		if (e.target instanceof Node && !clientWrapperEl?.contains(e.target)) closeClient()
-	}
-
-	function focusClientButton() {
-		clientOpen = true
 	}
 
 	/** @param {KeyboardEvent} e */
@@ -151,8 +128,6 @@
 	})
 </script>
 
-<svelte:window onclick={handleWindowClick} />
-
 {#if isWork && work}
 	{#snippet clientDropdown()}
 		{#if clientOpen && navClient}
@@ -178,19 +153,11 @@
 	<header>
 		<div class="menu" role="menubar" tabindex="-1" bind:this={headerMenuEl} onkeydown={handleTopLevelKeydown}>
 			{#if navClient && !gallery.open}
-				{#if navMode.mode === 'mouseover'}
-					<div id="client" class="menu-item tag-wrapper" role="none" bind:this={clientWrapperEl} onmouseenter={openClientHover} onmouseleave={closeClient} onfocusin={openClientHover} onfocusout={handleClientFocusOut}
-					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
-						<h2><button class="tag no-pointer" class:active={clientOpen} type="button" bind:this={clientButtonEl} onkeydown={handleClientKeydown} aria-haspopup="true" aria-expanded={clientOpen} aria-controls="clientWorks">{navClient.title}</button></h2>
-						{@render clientDropdown()}
-					</div>
-				{:else}
-					<div id="client" class="menu-item tag-wrapper" bind:this={clientWrapperEl}
-					in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
-						<h2><button class="tag" class:active={clientOpen} type="button" bind:this={clientButtonEl} onmousedown={captureClientOpenState} onclick={toggleClientClick} onfocus={focusClientButton} onkeydown={handleClientKeydown} aria-haspopup="true" aria-expanded={clientOpen} aria-controls="clientWorks">{navClient.title}</button></h2>
-						{@render clientDropdown()}
-					</div>
-				{/if}
+				<div id="client" class="menu-item tag-wrapper" role="none" bind:this={clientWrapperEl} onmouseenter={openClientHover} onmouseleave={closeClient} onfocusin={openClientHover} onfocusout={handleClientFocusOut}
+				in:revealWidth|global={{ duration: DURATION, delay: DURATION }} out:revealWidth|global={{ duration: DURATION }}>
+					<h2><button class="tag no-pointer" class:active={clientOpen} type="button" bind:this={clientButtonEl} onkeydown={handleClientKeydown} aria-haspopup="true" aria-expanded={clientOpen} aria-controls="clientWorks">{navClient.title}</button></h2>
+					{@render clientDropdown()}
+				</div>
 			{/if}
 			{#key page.params.work}
 				{#if work.title && !gallery.open}

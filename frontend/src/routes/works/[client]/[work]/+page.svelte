@@ -6,10 +6,10 @@
 	import CursorTag from '$lib/components/CursorTag.svelte'
 	import { pageIn, pageOut } from '$lib/utils/transitions.js'
 	import { getGallery } from '$lib/stores/gallery.svelte.js'
+	import { urlFor, gallerySrcset, gallerySizes } from '$lib/utils/image.js'
 	import { page } from '$app/state'
 
 	let { data } = $props()
-	let hovered = $state(null)
 	let hoveredBlock = $state(false)
 	const gallery = getGallery()
 	const DURATION = 300
@@ -23,7 +23,30 @@
 			.flatMap((/** @type {any} */ block) => block.items ?? [])
 			.filter((/** @type {any} */ item) => item._type === 'mediaItem')
 	)
+
+	/** @param {() => string | undefined} fn */
+	function safely(fn) {
+		try {
+			return fn()
+		} catch {
+			return undefined
+		}
+	}
 </script>
+
+<svelte:head>
+	{#each galleryMedia as item (item._key)}
+		{#if item.image}
+			<link
+				rel="preload"
+				as="image"
+				href={safely(() => urlFor(item.image)?.height(1200).url())}
+				imagesrcset={gallerySrcset(item.image, item.aspectRatio || 1)}
+				imagesizes={gallerySizes()}
+			/>
+		{/if}
+	{/each}
+</svelte:head>
 
 {#if gallery.open && galleryMedia.length}
 	<div class="gallery-wrapper" in:pageIn={{ fixed: true, duration: DURATION }} out:pageOut={{ fixed: true, duration: DURATION}}>
@@ -117,11 +140,7 @@
 			<ul class="related">
 				{#each data.work.related as related (related.slug?.current)}
 					<li class="work">
-						<a
-							href="/works/{related.client?.slug.current}/{related.slug?.current}"
-							onmouseenter={() => (hovered = related)}
-							onmouseleave={() => (hovered = null)}
-						>
+						<a href="/works/{related.client?.slug.current}/{related.slug?.current}">
 							<Media media={related.thumbnail} width={25}/>
 							<span class="title">{related.title}</span>
 							{#if related.subtitle}<span class="subtitle">{related.subtitle}</span>{/if}
@@ -133,11 +152,6 @@
 	{/if}
 </article>
 
-{#if hovered}
-	{#key hovered}
-		<CursorTag label="View project" />
-	{/key}
-{/if}
 {#if hoveredBlock}
 	<CursorTag label="View" />
 {/if}
@@ -168,6 +182,11 @@ article {
 
 			.block {
 				width: 100%;
+
+				&:not(:first-child) {
+					margin-left: -1px;
+				}
+
 				&.textItem {
 					display: block;
 					padding: var(--sp-15);
@@ -242,7 +261,21 @@ article {
 					width: 100%;
 					padding-bottom: var(--sp-2);
 					:global(.media-container) {
-						border-radius: var(--tagRadius);
+						border-radius: 3px;
+					}
+					@media (pointer: fine) {
+						&:hover {
+							:global(.content) {
+								transition: transform var(--transition-xs);
+								transform: scale(1.02);
+							}
+						}
+					}
+					&:focus-visible {
+						:global(.content) {
+							transition: transform var(--transition-xs);
+							transform: scale(1.02);
+						}
 					}
 					.title {
 						display: block;
@@ -275,6 +308,12 @@ article {
 				flex-direction: column;
 
 				.block {
+					margin-left: 0;
+
+					&:not(:first-child) {
+						margin-top: -1px;
+					}
+
 					&.textItem {
 						width: 100%;
 					}

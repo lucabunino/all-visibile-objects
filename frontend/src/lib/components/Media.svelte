@@ -1,5 +1,5 @@
 <script>
-	import { urlFor } from '$lib/utils/image.js'
+	import { urlFor, gallerySrcset, gallerySizes } from '$lib/utils/image.js'
 
 	/** @type {{media: any, bp?: number, width?: number, class?: string, opacity?: boolean, blur?: boolean, scale?: boolean, duration?: number}} */
 	let { media, bp = 768, width = 100, class: className = '', opacity = true, blur = true, scale = false, duration = 500 } = $props()
@@ -15,10 +15,15 @@
 
 	const widths = [400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600]
 
+	const isGallery = $derived(className.includes('gallery'))
+
 	/** @param {any} image */
 	function srcset(image) {
+		if (isGallery) return gallerySrcset(image, aspectRatio || 1)
 		return widths.map((w) => `${safely(() => urlFor(image)?.width(w).url())} ${w}w`).join(', ')
 	}
+
+	const sizes = $derived(isGallery ? gallerySizes(bp, width) : `(max-width: ${bp}px) 100vw, ${width}vw`)
 
 	const aspectRatio = $derived(media?.type === 'video' ? media?.posterAspectRatio : media?.aspectRatio)
 	const lqip = $derived(media?.type === 'video' ? media?.posterLqip : media?.lqip)
@@ -38,6 +43,15 @@
 		observer.observe(node)
 		return () => observer.disconnect()
 	}
+
+	// iOS Safari sometimes ignores the `muted` HTML attribute on videos that
+	// gain their <source> children after mount, silently blocking autoplay —
+	// setting the `muted` DOM property directly and retrying play() fixes it
+	/** @param {HTMLVideoElement} node */
+	function ensureAutoplay(node) {
+		node.muted = true
+		node.play?.().catch(() => {})
+	}
 </script>
 
 <div
@@ -55,7 +69,7 @@
 		style:background-image={lqip ? `url(${lqip})` : undefined}
 	>
 		{#if media?.type === 'video' && media.video}
-			<video autoplay muted loop playsinline class:blur class:scale class:loaded={loaded && entered} poster={safely(() => urlFor(media.videoPoster)?.url())} onloadeddata={() => (loaded = true)}>
+			<video autoplay muted loop playsinline class:blur class:scale class:loaded={loaded && entered} poster={safely(() => urlFor(media.videoPoster)?.url())} onloadeddata={() => (loaded = true)} {@attach ensureAutoplay}>
 				{#if media.videoMobile}
 					<source media="(max-width: 768px)" src={media.videoMobile.asset?.url} type="video/mp4" />
 				{/if}
@@ -67,9 +81,9 @@
 					<source media="(max-width: {bp}px)" srcset={srcset(media.imageMobile)} />
 				{/if}
 				<img
-					src={safely(() => urlFor(media.image)?.width(1200).url())}
+					src={safely(() => (isGallery ? urlFor(media.image)?.height(1200).url() : urlFor(media.image)?.width(1200).url()))}
 					srcset={srcset(media.image)}
-					sizes="(max-width: {bp}px) 100vw, {width}vw"
+					{sizes}
 					loading="lazy"
 					alt=""
 					class:blur
@@ -122,6 +136,8 @@
 			width: 100%;
 			height: 100%;
 			max-width: 100%;
+			object-fit: cover;
+			object-position: center;
 			will-change: filter, transform;
 			transition: var(--transition);
 

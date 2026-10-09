@@ -57,8 +57,7 @@
 		transform: translateZ(0);
 		backface-visibility: hidden;
 		cursor: pointer;
-		border-radius: var(--tagRadius, 0px);
-		transition: border-radius .3s cubic-bezier(.77, 0, .175, 1);
+		border-radius: 3px;
 
 		a {
 			color: inherit;

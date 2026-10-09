@@ -13,6 +13,8 @@
 	--headerHeight: 4rem;
 	--footerHeight: 4rem;
 	--transition: cubic-bezier(0.42, 0, 0.58, 1) .5s;
+	--transition-s: cubic-bezier(.33, 1, .68, 1) .3s;
+	--transition-xs: cubic-bezier(.33, 1, .68, 1) .2s;
 
 	@for $i from 1 through 200 {
 		--sp-#{$i}: #{calc($i / 14)}rem;
@@ -73,7 +75,7 @@ body {
 	backface-visibility: hidden;
 	cursor: pointer;
 	white-space: pre;
-	border-radius: var(--tagRadius, 0px);
+	border-radius: 3px;
 	transition: border-radius .3s cubic-bezier(.77, 0, .175, 1);
 	overflow: hidden;
 	white-space: nowrap;

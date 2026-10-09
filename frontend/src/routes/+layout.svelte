@@ -11,20 +11,18 @@
 	import { pageIn, pageOut } from '$lib/utils/transitions.js'
 	import { getTemplate } from '$lib/utils/template.js'
 	import { page } from '$app/state'
-	import { getTagRadius } from '$lib/stores/tagRadius.svelte.js'
 	import { innerWidth } from 'svelte/reactivity/window'
 	import bp from '$lib/scss/breakpoints.module.scss'
 
 	let { data, children } = $props()
 	const DURATION = 500
-	const tagRadius = getTagRadius()
 </script>
 
 {#if innerWidth.current && innerWidth.current <= parseInt(bp.xxxs)}
 	<p class="notice su-s">Please view this site on a larger screen.</p>
 {:else}
 	<Head />
-	<div class={tagRadius.rounded ? 'mo mo-s' : 'su su-s'} style:--tagRadius={tagRadius.rounded ? '3px' : '0px'}>
+	<div class="su su-s">
 		<Header nav={data.nav} about={data.about}/>
 		<HeaderWork nav={data.nav} />
 		<CookieBanner policies={data.policies} />

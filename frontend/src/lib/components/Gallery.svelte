@@ -96,7 +96,7 @@
 	></button>
 
 	{#key media[index]}
-		<Media media={media[index]} class="gallery" blur={false} opacity={true} scale={false} duration={300}/>
+		<Media media={media[index]} class="gallery" blur={false} opacity={true} scale={false} duration={300} width=50/>
 	{/key}
 </div>
 
