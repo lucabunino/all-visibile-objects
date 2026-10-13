@@ -5,11 +5,13 @@ export default defineCliConfig({
     projectId: 'u7r06rsg',
     dataset: 'production'
   },
+  studioHost: 'allvisibileobjects',
   deployment: {
+    appId: 'ccw5lc7zz6j8waz3mxl25ub4',
     /**
      * Enable auto-updates for studios.
      * Learn more at https://www.sanity.io/docs/studio/latest-version-of-sanity#k47faf43faf56
      */
-    autoUpdates: true,
+    autoUpdates: false,
   },
 })
